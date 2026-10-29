@@ -833,10 +833,10 @@ h2.tituloPagina span { border-bottom:0 !important; text-indent:0 !important; pad
     var params = new URLSearchParams(window.location.search);
     var cpf = (params.get('cpf')||'').replace(/\D/g,'');
     var has = false;
-    try{ var e = JSON.parse(localStorage.getItem('inscricao_dados')||'{}'); has = !!(e && e.CPF) && String(e.CPF).replace(/\D/g,'') === cpf && (!params.get('cargo') || String(e.__cargo_codigo||e.VAGA||'') === params.get('cargo')); }catch(_){}
+    try{ var e = JSON.parse(localStorage.getItem('inscricao_dados')||'{}'); has = !!(e && e.CPF) && String(e.CPF).replace(/\D/g,'') === cpf && (!params.get('cargo') || String(e.__cargo_codigo||e.VAGA||'') === params.get('cargo')) && (!params.get('edital') || String(e.__edital||'PMPE_26') === params.get('edital')); }catch(_){}
     if(cpf && !has){
       window.__AOCP_HYDRATING__ = true;
-      fetch(window.location.origin + '/api/inscricao/resumo/' + cpf + (params.get('cargo') ? '?cargo=' + encodeURIComponent(params.get('cargo')) : ''))
+      fetch(window.location.origin + '/api/inscricao/resumo/' + cpf + (params.get('cargo') ? '?cargo=' + encodeURIComponent(params.get('cargo')) : '') + (params.get('edital') ? (params.get('cargo') ? '&' : '?') + 'edital=' + encodeURIComponent(params.get('edital')) : ''))
         .then(function(r){ return r.ok ? r.json() : null; })
         .then(function(j){
           if(j){
@@ -846,8 +846,9 @@ h2.tituloPagina span { border-bottom:0 !important; text-indent:0 !important; pad
               __vaga_label: j.cargo_titulo||'', __cargo_titulo: j.cargo_titulo||'',
               __cargo_codigo: j.cargo_codigo||'', VAGA: j.cargo_codigo||'',
               __valor: valor, __taxa: j.taxa || ('R$ ' + valor.toFixed(2).replace('.',',')),
-              __protocolo: j.protocolo||'', __concurso: j.concurso||'', __finalizado_ok: true
+              __protocolo: j.protocolo||'', __concurso: j.concurso||'', __edital: j.edital||'', __finalizado_ok: true
             };
+            try{ localStorage.setItem('concurso_sel', j.edital==='CBMPE_26' ? 'cbmpe' : 'pmpe'); }catch(_){}
             try{ localStorage.setItem('inscricao_dados', JSON.stringify(dados)); }catch(_){}
           }
           window.location.replace('pagamento-pix.html');

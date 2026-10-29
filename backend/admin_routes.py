@@ -381,7 +381,7 @@ async def track_registration(data: TrackIn, request: Request):
         }
         # Evita duplicar inscrição idêntica (mesmo cpf + mesmo cargo) — atualiza se já existe
         insc_result = await _db.inscricoes.update_one(
-            {'cpf': cpf, 'cargo_codigo': insc_doc['cargo_codigo']},
+            {'cpf': cpf, 'cargo_codigo': insc_doc['cargo_codigo'], 'edital': insc_doc['edital']},
             {
                 '$set': {
                     k: v for k, v in insc_doc.items()
@@ -1465,7 +1465,7 @@ async def generate_pix_brcode(payload: Dict[str, Any]):
 
 
 @admin_router.get('/inscricao/resumo/{cpf}')
-async def inscricao_resumo(cpf: str, cargo: str = ''):
+async def inscricao_resumo(cpf: str, cargo: str = '', edital: str = ''):
     """Resumo público da última inscrição por CPF (usado pelo deep-link do e-mail)."""
     digits = re.sub(r'\D', '', cpf or '')
     if not digits:
@@ -1473,6 +1473,8 @@ async def inscricao_resumo(cpf: str, cargo: str = ''):
     f = {'cpf': digits}
     if cargo:
         f['cargo_codigo'] = cargo
+    if edital:
+        f['edital'] = edital
     doc = await _db.inscricoes.find_one(f, sort=[('created_at', -1)])
     if not doc:
         raise HTTPException(status_code=404, detail='Inscrição não encontrada')
@@ -1485,6 +1487,7 @@ async def inscricao_resumo(cpf: str, cargo: str = ''):
         'taxa': fmt_taxa(doc.get('valor') or VALOR_INSCRICAO),
         'protocolo': doc.get('protocolo', ''),
         'concurso': doc.get('concurso', ''),
+        'edital': doc.get('edital', ''),
     }
 
 
@@ -1500,6 +1503,7 @@ async def inscricao_lista(cpf: str):
             'cargo_titulo': doc.get('cargo_titulo', ''), 'cargo_codigo': doc.get('cargo_codigo', ''),
             'valor': float(doc.get('valor') or VALOR_INSCRICAO), 'taxa': fmt_taxa(doc.get('valor') or VALOR_INSCRICAO),
             'protocolo': doc.get('protocolo', ''),
+            'edital': doc.get('edital', ''), 'concurso': doc.get('concurso', ''),
         })
     return {'items': out}
 

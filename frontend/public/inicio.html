@@ -41,3 +41,4 @@ html,body{overflow-x:hidden}
  window.addEventListener('pageshow',function(ev){if(ev.persisted)pl.classList.remove('on');});
 })();
 </script>
+<script>(function(){try{if(sessionStorage.getItem('nova_inscricao')!=='1')return;var d=JSON.parse(localStorage.getItem('inscricao_dados')||'{}');if(!d.CPF||!d.NOME)return;function go(){['pmpe','cbmpe'].forEach(function(k){document.querySelectorAll('a[href="/'+k+'.html"]').forEach(function(a){a.setAttribute('href','/dados-inscricao.html?c='+k);});});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',go);else go();}catch(e){}})();</script>

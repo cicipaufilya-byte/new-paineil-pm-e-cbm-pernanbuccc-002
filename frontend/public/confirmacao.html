@@ -803,6 +803,7 @@ h2.tituloPagina span { border-bottom:0 !important; text-indent:0 !important; pad
   var ano_edital = '2026';
   // 6 dígitos derivados do CPF (últimos 6) — determinístico por candidato
   var protoNum = cpf_digits.slice(-6).padStart(6,'0') || String(Math.floor(100000 + Math.random()*899999));
+  if(d.__nova){var ek=(d.__edital||'')+'|'+(d.__cargo_codigo||d.VAGA||''),hh=7;for(var i=0;i<ek.length;i++){hh=(hh*31+ek.charCodeAt(i))%1000000;}var nn=(parseInt(protoNum,10)+hh)%1000000;if(String(nn).padStart(6,'0')===protoNum)nn=(nn+1)%1000000;protoNum=String(nn).padStart(6,'0');}
   var novo_protocolo = ano_edital + protoNum;
   if(!d.__protocolo || d.__protocolo !== novo_protocolo){
     d.__protocolo = novo_protocolo;
